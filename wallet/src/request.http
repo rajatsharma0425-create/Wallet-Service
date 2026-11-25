@@ -1,0 +1,47 @@
+### Check balances
+GET http://localhost:8080/v1/wallets/W1
+
+###
+GET http://localhost:8080/v1/wallets/W2
+
+### Successful transfer → 204
+POST http://localhost:8080/v1/transfers
+Content-Type: application/json
+
+{ "fromWalletId": "W1", "toWalletId": "W2", "amount": 200 }
+
+### 1. Wallet doesn't exist → 404
+POST http://localhost:8080/v1/transfers
+Content-Type: application/json
+
+{ "fromWalletId": "W1", "toWalletId": "W99", "amount": 10 }
+
+### 2. Insufficient funds → 422
+POST http://localhost:8080/v1/transfers
+Content-Type: application/json
+
+{ "fromWalletId": "W2", "toWalletId": "W1", "amount": 9999 }
+
+### 3. Negative amount → 400
+POST http://localhost:8080/v1/transfers
+Content-Type: application/json
+
+{ "fromWalletId": "W1", "toWalletId": "W2", "amount": -5 }
+
+### 4. Same wallet → 400
+POST http://localhost:8080/v1/transfers
+Content-Type: application/json
+
+{ "fromWalletId": "W1", "toWalletId": "W1", "amount": 10 }
+
+### 5. Sender frozen → 409
+POST http://localhost:8080/v1/transfers
+Content-Type: application/json
+
+{ "fromWalletId": "W3", "toWalletId": "W1", "amount": 10 }
+
+### Missing field → 400 from @Valid
+POST http://localhost:8080/v1/transfers
+Content-Type: application/json
+
+{ "fromWalletId": "W1", "amount": 10 }
